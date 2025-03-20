@@ -1,9 +1,12 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from .models import Book
 from .serializers import BookSerializer
-@api_view(['GET'])
-def book_list(request):
+
+class BookListCreateView(ListCreateAPIView):
     queryset = Book.objects.all()
-    serializer = BookSerializer(queryset, many=True)
-    return Response(serializer.data)
+    serializer_class = BookSerializer
+
+class BookRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
