@@ -9,8 +9,8 @@ from .views import (BookListCreateView,
 urlpatterns = [
     path('books/', BookListCreateView.as_view()),
     path('books/<int:pk>', BookRetrieveUpdateDestroyView.as_view(), name='books-detail'),
-    path('authors/', AuthorListCreateView.as_view()),
-    path('authors/<int:pk>', AuthorRetrieveUpdateDestroyView.as_view()),
-    path('genres/', GenreListCreateView.as_view()),
-    path('genres/<int:pk>', GenreRetrieveUpdateDestroyView.as_view())
+    path("authors/", AuthorListCreateView.as_view(), name="authors-list"),
+    path("authors/<int:pk>/", AuthorRetrieveUpdateDestroyView.as_view(), name="authors-detail"),
+    path('genres/', GenreListCreateView.as_view(), name='genres-list'),
+    path('genres/<int:pk>', GenreRetrieveUpdateDestroyView.as_view(), name='genres-detail')
 ]

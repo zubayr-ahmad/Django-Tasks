@@ -14,9 +14,8 @@ class AuthorSerializer(serializers.ModelSerializer):
     
     def validate_bio(self, bio):
         if len(bio) <= 3:
-            return serializers.ValidationError("Bio field should be more than 3 characters")
+            raise serializers.ValidationError("Bio field should be more than 3 characters")
         return bio
-
 
 class BookSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
