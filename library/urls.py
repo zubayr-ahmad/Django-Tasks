@@ -7,7 +7,7 @@ from .views import (BookListCreateView,
                     GenreRetrieveUpdateDestroyView
                     )
 urlpatterns = [
-    path('books/', BookListCreateView.as_view()),
+    path('books/', BookListCreateView.as_view(), name='books-list'),
     path('books/<int:pk>', BookRetrieveUpdateDestroyView.as_view(), name='books-detail'),
     path("authors/", AuthorListCreateView.as_view(), name="authors-list"),
     path("authors/<int:pk>/", AuthorRetrieveUpdateDestroyView.as_view(), name="authors-detail"),

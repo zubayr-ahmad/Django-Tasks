@@ -10,7 +10,6 @@ from library.serializers import AuthorSerializer
 
 @pytest.mark.django_db
 class TestAuthorAPI:
-    
     def test_create_author(self, api_client, sample_author_data):
         url = reverse("authors-list")
         response = api_client.post(
@@ -79,3 +78,35 @@ class TestAuthorAPI:
         
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "bio" in response.data
+
+@pytest.mark.django_db
+class TestAuthorSerializer:
+    def test_author_serialization(self, create_author):
+        serializer = AuthorSerializer(create_author)
+        
+        assert serializer.data["name"] == create_author.name
+        assert serializer.data["bio"] == create_author.bio
+        assert serializer.data["date_of_birth"] == str(create_author.date_of_birth)
+        assert "books" in serializer.data
+        
+    def test_author_deserialization(self, sample_author_data):
+        serializer = AuthorSerializer(data=sample_author_data)
+        
+        assert serializer.is_valid()
+        author = serializer.save()
+        
+        assert author.name == sample_author_data["name"]
+        assert author.bio == sample_author_data["bio"]
+        
+    def test_author_bio_validation(self):
+        invalid_data = {
+            "name": "Test Author",
+            "bio": "Hi",  # Too short
+            "date_of_birth": "1990-01-01"
+        }
+        
+        serializer = AuthorSerializer(data=invalid_data)
+        
+        assert not serializer.is_valid()
+        assert "bio" in serializer.errors
+        
