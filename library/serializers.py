@@ -1,12 +1,11 @@
 from rest_framework import serializers
-from .models import Book, Author
-import datetime
+from .models import Book, Author, Genre
 class AuthorSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     books = serializers.HyperlinkedRelatedField(
         many=True,
         read_only=True,
-        view_name='books-detail'   # getting it from urls.py 
+        view_name='books-detail' 
     )
     class Meta:
         model = Author
@@ -16,11 +15,14 @@ class AuthorSerializer(serializers.ModelSerializer):
     def validate_bio(self, bio):
         if len(bio) <= 3:
             return serializers.ValidationError("Bio field should be more than 3 characters")
+        return bio
 
 
 class BookSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    author = AuthorSerializer()
+    author = serializers.PrimaryKeyRelatedField(
+        queryset=Author.objects.all()
+    )
     days_ago = serializers.SerializerMethodField(
         method_name='get_days_ago', read_only=True
     )    
@@ -38,3 +40,11 @@ class BookSerializer(serializers.ModelSerializer):
         if obj['author'] is None or obj['title'] is None:
             raise serializers.ValidationError("Author and title cannot be None")
         return obj
+
+class GenreSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    books = BookSerializer(many=True, read_only=True)
+    class Meta:
+        model = Genre
+        fields = ['id', 'label', 'books']
+        # depth = 1

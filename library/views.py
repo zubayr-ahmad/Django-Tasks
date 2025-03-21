@@ -1,7 +1,6 @@
-from rest_framework.response import Response
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from .models import Book, Author
-from .serializers import BookSerializer, AuthorSerializer
+from .models import Book, Author, Genre
+from .serializers import BookSerializer, AuthorSerializer, GenreSerializer
 
 
 class AuthorListCreateView(ListCreateAPIView):
@@ -20,3 +19,10 @@ class BookRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
+class GenreListCreateView(ListCreateAPIView):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+class GenreRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
