@@ -3,6 +3,11 @@ from .models import Book, Author
 import datetime
 class AuthorSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
+    books = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='books-detail'   # getting it from urls.py 
+    )
     class Meta:
         model = Author
         fields = ['id', 'name', 'bio', 'date_of_birth', 'books']
@@ -27,3 +32,9 @@ class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = ['id', 'title', 'author', 'published_date', 'days_ago']
+    
+    def validate(self, obj):
+        print(obj)
+        if obj['author'] is None or obj['title'] is None:
+            raise serializers.ValidationError("Author and title cannot be None")
+        return obj
