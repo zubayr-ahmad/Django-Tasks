@@ -8,7 +8,7 @@ from library.models import Author
 from library.serializers import AuthorSerializer
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 class TestAuthorAPI:
     def test_create_author(self, api_client, sample_author_data):
         url = reverse("authors-list")
