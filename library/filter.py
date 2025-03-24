@@ -5,7 +5,8 @@ class BookFilter(FilterSet):
     class Meta:
         model = Book
         fields = {
-            'published_date' : ['gte', 'lte', 'exact'],            
+            'title': ['contains'],
+            'published_date' : ['year__gte', 'year__lte'],            
             'is_featured': ['exact']
         }
         # fields = '__all__'
