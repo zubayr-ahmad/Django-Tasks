@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Book, Author, Genre
+from datetime import datetime, timedelta
 class AuthorSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     books = serializers.HyperlinkedRelatedField(
@@ -28,11 +29,14 @@ class BookSerializer(serializers.ModelSerializer):
 
     def get_days_ago(self, obj):
         # self serializer, obj = Book instance
-        return obj.published_date
+        if obj.published_date:
+            days_ago = (datetime.now().date() - obj.published_date).days
+            return days_ago
+        return None
 
     class Meta:
         model = Book
-        fields = ['id', 'title', 'author', 'published_date', 'days_ago']
+        fields = ['id', 'title', 'author', 'published_date', 'days_ago', 'rating', 'is_featured']
     
     def validate(self, obj):
         print(obj)

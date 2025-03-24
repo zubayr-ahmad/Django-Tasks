@@ -21,6 +21,8 @@ class Book(models.Model):
         Author, on_delete=models.CASCADE, related_name='books'
     )
     genre = models.ManyToManyField(Genre, related_name='books')
+    rating = models.DecimalField(max_digits=2, decimal_places=1)
+    is_featured = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.title} : {self.author.name}"
