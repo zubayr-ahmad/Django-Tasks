@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import Book, Author, Genre
 from .serializers import BookSerializer, AuthorSerializer, GenreSerializer
 from .filter import BookFilter
@@ -14,9 +15,11 @@ class AuthorViewSet(viewsets.ModelViewSet):
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     # filterset_fields = ['title', 'is_featured']
     filterset_class = BookFilter
+    search_fields = ['title', 'author__name']
+    ordering_fields = ['id']
 
     @action(detail=False,methods=['GET'])
     def recent(self, request):
@@ -40,5 +43,8 @@ class BookViewSet(viewsets.ModelViewSet):
         return Response(serialzer.data)
 
 class GenreViewSet(viewsets.ModelViewSet):
+    filter_backends = [SearchFilter]
+    search_fields = ['label']
+
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
