@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import Book, Author, Genre
 from .serializers import BookSerializer, AuthorSerializer, GenreSerializer
-from .filter import BookFilter
+from .filters import BookFilter, BookAboveAvgFilterBackend
 from datetime import datetime, timedelta
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
@@ -15,7 +15,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_backends = [DjangoFilterBackend, 
+                       SearchFilter, OrderingFilter, 
+                       BookAboveAvgFilterBackend]
     # filterset_fields = ['title', 'is_featured']
     filterset_class = BookFilter
     search_fields = ['title', 'author__name']
