@@ -1,12 +1,18 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from datetime import datetime, timedelta
+
 from .models import Book, Author, Genre
 from .serializers import BookSerializer, AuthorSerializer, GenreSerializer
 from .filters import BookFilter, BookAboveAvgFilterBackend
-from datetime import datetime, timedelta
+from .pagination import (CustomLimitOffsetPagination, 
+                         CustomPageNumberPagination,
+                         TimeBasePagination,
+                         MetaDataPagination)
+
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
@@ -22,7 +28,19 @@ class BookViewSet(viewsets.ModelViewSet):
     filterset_class = BookFilter
     search_fields = ['title', 'author__name']
     ordering_fields = ['id']
+    # pagination_class = MetaDataPagination
 
+    def get_pagination_class(self):
+        pagination_type = self.request.query_params.get('pagination', 'page')
+        pagination_class = {
+            'page': CustomPageNumberPagination,
+            'cursor': TimeBasePagination,
+            'meta': MetaDataPagination,
+            'offset': CustomLimitOffsetPagination
+        }
+        return pagination_class[pagination_type]
+    pagination_class = property(get_pagination_class)
+    
     @action(detail=False,methods=['GET'])
     def recent(self, request):
         days = datetime.now().date() - timedelta(days=30)
