@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from datetime import datetime, timedelta
+from django.db import connection
 
 from .models import Book, Author, Genre
 from .serializers import BookSerializer, BookListSerializer, BookAdminSerializer, BookAdaptiveSerializer, AuthorSerializer, GenreSerializer
@@ -19,7 +20,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
 
 class BookViewSet(viewsets.ModelViewSet):
-    queryset = Book.objects.all()
+    # queryset = Book.objects.all()
     # serializer_class = BookSerializer
     filter_backends = [DjangoFilterBackend, 
                        SearchFilter, OrderingFilter, 
@@ -29,6 +30,12 @@ class BookViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'author__name']
     ordering_fields = ['id']
     # pagination_class = MetaDataPagination
+    print('After',len(connection.queries))
+
+    def get_queryset(self):
+        # print('Before',len(connection.queries))
+        queryset = Book.objects.all().select_related('author').prefetch_related('genre')
+        return queryset
 
     def get_pagination_class(self):
         pagination_type = self.request.query_params.get('pagination', 'page')
@@ -39,7 +46,7 @@ class BookViewSet(viewsets.ModelViewSet):
             'offset': CustomLimitOffsetPagination
         }
         return pagination_class[pagination_type]
-    pagination_class = property(get_pagination_class)
+    # pagination_class = property(get_pagination_class)
 
     def get_serializer_class(self):
         if self.action == 'list':

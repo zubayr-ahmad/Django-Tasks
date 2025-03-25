@@ -26,7 +26,6 @@ class BookSerializer(serializers.ModelSerializer):
     days_ago = serializers.SerializerMethodField(
         method_name='get_days_ago', read_only=True
     )    
-
     def get_days_ago(self, obj):
         # self serializer, obj = Book instance
         if obj.published_date:
@@ -47,9 +46,11 @@ class BookSerializer(serializers.ModelSerializer):
 
 class BookListSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.name', read_only = True)
+    genres = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name='genres-list')
+
     class Meta:
         model = Book
-        fields = ['id', 'title', 'author_name', 'is_featured']
+        fields = ['id', 'title', 'author_name', 'is_featured', 'genres']
 
 class BookAdminSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
