@@ -6,7 +6,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from datetime import datetime, timedelta
 
 from .models import Book, Author, Genre
-from .serializers import BookSerializer, AuthorSerializer, GenreSerializer
+from .serializers import BookSerializer, BookListSerializer, BookAdminSerializer, BookAdaptiveSerializer, AuthorSerializer, GenreSerializer
 from .filters import BookFilter, BookAboveAvgFilterBackend
 from .pagination import (CustomLimitOffsetPagination, 
                          CustomPageNumberPagination,
@@ -20,7 +20,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
-    serializer_class = BookSerializer
+    # serializer_class = BookSerializer
     filter_backends = [DjangoFilterBackend, 
                        SearchFilter, OrderingFilter, 
                        BookAboveAvgFilterBackend]
@@ -40,6 +40,18 @@ class BookViewSet(viewsets.ModelViewSet):
         }
         return pagination_class[pagination_type]
     pagination_class = property(get_pagination_class)
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return BookListSerializer
+        if self.action == 'retrieve':
+            return BookSerializer
+        # if self.action in ('create', 'update', 'partial_update'):
+        #     if self.request.user.is_staff:
+        #         return BookAdminSerializer
+        if 'fields' in self.request.query_params:
+            return BookAdaptiveSerializer
+        return BookSerializer
     
     @action(detail=False,methods=['GET'])
     def recent(self, request):
