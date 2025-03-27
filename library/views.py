@@ -6,7 +6,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from datetime import datetime, timedelta
 
-from accounts.permissions import IsOwner
+from accounts.permissions import IsOwner, FieldLevelPermission, IPBasedPermission
 from .models import Book, Author, Genre
 from .serializers import BookSerializer, BookListSerializer, BookAdminSerializer, BookAdaptiveSerializer, AuthorSerializer, GenreSerializer
 from .filters import BookFilter, BookAboveAvgFilterBackend
@@ -21,7 +21,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
 
 class BookViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsOwner]
+    permission_classes = [IsOwner, IPBasedPermission, FieldLevelPermission]
     filter_backends = [DjangoFilterBackend, 
                        SearchFilter, OrderingFilter, 
                        BookAboveAvgFilterBackend]
