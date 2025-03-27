@@ -1,3 +1,4 @@
+# pagination.py
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination, CursorPagination
 from rest_framework.response import Response
 class CustomLimitOffsetPagination(LimitOffsetPagination):

@@ -1,3 +1,4 @@
+# views.py
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -30,10 +31,8 @@ class BookViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'author__name']
     ordering_fields = ['id']
     # pagination_class = MetaDataPagination
-    print('After',len(connection.queries))
 
     def get_queryset(self):
-        # print('Before',len(connection.queries))
         queryset = Book.objects.all().select_related('author').prefetch_related('genre')
         return queryset
 
