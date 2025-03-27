@@ -1,8 +1,9 @@
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from .serializers import TokenSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import TokenSerializer, CustomTokenObtainPairSerializer
 from datetime import timedelta
 from django.utils import timezone
 class CustomAuthToken(ObtainAuthToken):
@@ -36,3 +37,6 @@ class RefreshTokenView(ObtainAuthToken):
             'token': token.key,
             'expires_at': expires_at.isoformat()
         })
+    
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
