@@ -47,3 +47,27 @@ class IPBasedPermission(BasePermission):
         client_ip = request.META.get('REMOTE_ADDR')
         print("Client IP: ", client_ip)
         return client_ip in self.allowed_ips
+
+class MethodBasedPermission(BasePermission):
+    """
+    Nothing for non-authenticated user. GET is for anyone. POST is for staff user. PUT and PATCH is for owner. DELETE is for admin.
+    """
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        if request.method == 'GET':
+            return True
+        if request.method == 'POST':
+            return request.user.is_staff
+        if request.method in ('PUT', 'PATCH'):
+            return True  
+        if request.method == 'DELETE':
+            print("Request user: ", request.user)
+            print("Request user is superuser: ", request.user.is_superuser)
+            return request.user.is_superuser
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in ('PUT', 'PATCH'):
+            return obj.author.name == request.user.username
+        return True  
