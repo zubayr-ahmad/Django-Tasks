@@ -6,7 +6,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from datetime import datetime, timedelta
 
-from accounts.permissions import IsOwner, FieldLevelPermission, IPBasedPermission, MethodBasedPermission
+from accounts.permissions import IsOwner, FieldLevelPermission, IPBasedPermission, MethodBasedPermission, StaffAndFeatured, ContentTypePermission
 from .models import Book, Author, Genre
 from .serializers import BookSerializer, BookListSerializer, BookAdminSerializer, BookAdaptiveSerializer, AuthorSerializer, GenreSerializer
 from .filters import BookFilter, BookAboveAvgFilterBackend
@@ -18,6 +18,7 @@ from .pagination import (CustomLimitOffsetPagination,
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
+    permission_classes = [ContentTypePermission]
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -25,6 +26,7 @@ class BookViewSet(viewsets.ModelViewSet):
     serializer_class = BookSerializer
     # permission_classes = [IsOwner | (IPBasedPermission & FieldLevelPermission)]
     permission_classes = [MethodBasedPermission]
+    # permission_classes = [StaffAndFeatured]
     filter_backends = [DjangoFilterBackend, 
                        SearchFilter, OrderingFilter, 
                     #    BookAboveAvgFilterBackend

@@ -1,7 +1,8 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
+from django.contrib.contenttypes.models import ContentType
 
 class IsOwner(BasePermission):
-
+    message = "Username and author name should be same."
     def has_permission(self, request, view):
         # This runs first, before has_object_permission. So I am checking if the user is authenticated.
         return request.user and request.user.is_authenticated
@@ -49,9 +50,7 @@ class IPBasedPermission(BasePermission):
         return client_ip in self.allowed_ips
 
 class MethodBasedPermission(BasePermission):
-    """
-    Nothing for non-authenticated user. GET is for anyone. POST is for staff user. PUT and PATCH is for owner. DELETE is for admin.
-    """
+    message = "Nothing for non-authenticated user. GET is for anyone. POST is for staff user. PUT and PATCH is for owner. DELETE is for admin."
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False
@@ -69,5 +68,25 @@ class MethodBasedPermission(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         if request.method in ('PUT', 'PATCH'):
-            return obj.author.name == request.user.username
+            return request.user.is_superuser or obj.author.name == request.user.username
         return True  
+
+class StaffAndFeatured(BasePermission):
+    message = """Staff person can update all books. Other normal users can only update featured books."""
+    def has_permission(self, request, view):
+        return request.user.is_authenticated
+    
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        return request.user.is_staff or obj.is_featured
+
+class ContentTypePermission(BasePermission):
+    message = "Only authenticated users can see all the authors."
+
+    def has_permission(self, request, view):
+        content_type = ContentType.objects.get_for_model(view.queryset.model)
+        print("Content Type: ", content_type)
+        if content_type.model == 'author':
+            return request.user.is_authenticated
+        return True
