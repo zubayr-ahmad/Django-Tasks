@@ -21,11 +21,11 @@ class AuthorSerializer(serializers.ModelSerializer):
         return bio
 
 class BookSerializer(serializers.ModelSerializer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        view = self.context.get('view')
-        if view and any(isinstance(p, FieldLevelPermission) for p in view.permission_classes):
-            FieldLevelPermission(request=self.context['request']).filter_serializer_fields(self)
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     view = self.context.get('view')
+    #     if view and any(isinstance(p, FieldLevelPermission) for p in view.permission_classes):
+    #         FieldLevelPermission(request=self.context['request']).filter_serializer_fields(self)
             
     id = serializers.IntegerField(read_only=True)
     author = serializers.PrimaryKeyRelatedField(

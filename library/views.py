@@ -18,14 +18,14 @@ from .pagination import (CustomLimitOffsetPagination,
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    permission_classes = [ContentTypePermission]
+    # permission_classes = [ContentTypePermission]
 
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     # permission_classes = [IsOwner | (IPBasedPermission & FieldLevelPermission)]
-    permission_classes = [MethodBasedPermission]
+    # permission_classes = [MethodBasedPermission]
     # permission_classes = [StaffAndFeatured]
     filter_backends = [DjangoFilterBackend, 
                        SearchFilter, OrderingFilter, 
