@@ -58,7 +58,7 @@ class LibraryAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Genre.objects.count(), 2)
 
-class LibraryPermissionsTestCase(APITestCase):
+class LibraryFilteringTestCase(APITestCase):
     def setUp(self):
         self.user = UserFactory()
         self.author = AuthorFactory()

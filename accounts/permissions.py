@@ -51,7 +51,7 @@ class IPBasedPermission(BasePermission):
         return client_ip in self.allowed_ips
 
 class MethodBasedPermission(BasePermission):
-    message = "Nothing for non-authenticated user. GET is for anyone. POST is for staff user. PUT and PATCH is for owner. DELETE is for admin."
+    message = "Nothing for non-authenticated user. GET is for anyone authenticated. POST is for staff user. PUT and PATCH is for owner. DELETE is for admin."
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False

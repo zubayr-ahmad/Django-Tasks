@@ -8,7 +8,7 @@ class UserFactory(factory.django.DjangoModelFactory):
         model = User
     username = factory.Faker('user_name')
     password = factory.PostGenerationMethodCall('set_password', 'testpass')
-
+    
 class AuthorFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Author

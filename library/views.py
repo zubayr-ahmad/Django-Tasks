@@ -24,8 +24,8 @@ class AuthorViewSet(viewsets.ModelViewSet):
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    permission_classes = [MethodBasedPermission]
     # permission_classes = [IsOwner | (IPBasedPermission & FieldLevelPermission)]
-    # permission_classes = [MethodBasedPermission]
     # permission_classes = [StaffAndFeatured]
     # filter_backends = [DjangoFilterBackend, 
     #                    SearchFilter, OrderingFilter, 
