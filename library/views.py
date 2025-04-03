@@ -27,11 +27,12 @@ class BookViewSet(viewsets.ModelViewSet):
     # permission_classes = [IsOwner | (IPBasedPermission & FieldLevelPermission)]
     # permission_classes = [MethodBasedPermission]
     # permission_classes = [StaffAndFeatured]
-    filter_backends = [DjangoFilterBackend, 
-                       SearchFilter, OrderingFilter, 
-                    #    BookAboveAvgFilterBackend
-                       ]
-
+    # filter_backends = [DjangoFilterBackend, 
+    #                    SearchFilter, OrderingFilter, 
+    #                 #    BookAboveAvgFilterBackend
+    #                    ]
+    filterset_class = BookFilter
+    ordering_fields = ['title']
     def get_pagination_class(self):
         pagination_type = self.request.query_params.get('pagination', 'page')
         pagination_class = {
@@ -41,6 +42,7 @@ class BookViewSet(viewsets.ModelViewSet):
             'offset': CustomLimitOffsetPagination
         }
         return pagination_class[pagination_type]
+    pagination_class = property(get_pagination_class)
     
     @action(detail=False,methods=['GET'])
     def recent(self, request):
@@ -72,7 +74,6 @@ class BookViewSet(viewsets.ModelViewSet):
     # def get_queryset(self):
     #     queryset = Book.objects.all().select_related('author').prefetch_related('genre')
     #     return queryset
-    # pagination_class = property(get_pagination_class)
 
     # def get_serializer_class(self):
     #     if self.action == 'list':

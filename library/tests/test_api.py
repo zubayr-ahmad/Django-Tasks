@@ -3,8 +3,7 @@ from rest_framework import status
 from django.urls import reverse
 from library.models import Book, Author, Genre
 from accounts.models import User
-from factories import UserFactory, BookFactory
-
+from factories import UserFactory, BookFactory, AuthorFactory, GenreFactory
 class LibraryAPITestCase(APITestCase):
     def setUp(self):
         self.user = UserFactory()
@@ -16,7 +15,8 @@ class LibraryAPITestCase(APITestCase):
         url = reverse('books-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data['results']), 1)
+        # self.assertEqual(response.data['results'][0]['title'], 'Test Book')
 
     def test_get_book_detail(self):
         url = reverse('books-detail', kwargs={'pk': self.book.id})
@@ -36,7 +36,7 @@ class LibraryAPITestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-        # self.assertEqual(response.data[0]['name'], 'Test Author')
+        # self.assertEqual(response.data['results'][0]['name'], 'Test Author')
     
     def test_create_author(self):
         url = reverse('authors-list')
@@ -57,3 +57,30 @@ class LibraryAPITestCase(APITestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Genre.objects.count(), 2)
+
+class LibraryPermissionsTestCase(APITestCase):
+    def setUp(self):
+        self.user = UserFactory()
+        self.author = AuthorFactory()
+        self.genre = GenreFactory()
+        self.book1 = BookFactory(title="Book A", author=self.author, genre=[self.genre], is_featured=True)
+        self.book2 = BookFactory(title="Book B", author=self.author, genre=[self.genre], is_featured=False)
+    
+    def test_filter_by_title(self):
+        url = reverse('books-list') + '?title__contains=A'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['title'], 'Book A')
+    
+    def test_sorting_by_title(self):
+        url = reverse('books-list') + '?ordering=title'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'][0]['title'], 'Book A')
+    
+    def test_page_pagination(self):
+        url = reverse('books-list') + '?pagination=page&page_size=1&page=1'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
