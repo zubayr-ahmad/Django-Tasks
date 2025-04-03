@@ -6,13 +6,14 @@ from accounts.models import User
 from factories import UserFactory, BookFactory, AuthorFactory, GenreFactory
 class LibraryAPITestCase(APITestCase):
     def setUp(self):
-        self.user = UserFactory()
+        self.user = UserFactory(is_staff=True)
         self.book = BookFactory()
         self.author = self.book.author
         self.genre = self.book.genre.first()
     
     def test_get_books(self):
         url = reverse('books-list')
+        self.client.force_authenticate(self.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
@@ -20,6 +21,7 @@ class LibraryAPITestCase(APITestCase):
 
     def test_get_book_detail(self):
         url = reverse('books-detail', kwargs={'pk': self.book.id})
+        self.client.force_authenticate(self.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # self.assertEqual(response.data['title'], 'Test Book')
@@ -28,6 +30,7 @@ class LibraryAPITestCase(APITestCase):
     def test_create_book(self):
         url = reverse('books-list')
         data = {'title':'Test01', 'author':self.author.id, 'rating':4.0}
+        self.client.force_authenticate(self.user)
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         
@@ -68,6 +71,7 @@ class LibraryFilteringTestCase(APITestCase):
     
     def test_filter_by_title(self):
         url = reverse('books-list') + '?title__contains=A'
+        self.client.force_authenticate(self.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
@@ -75,12 +79,14 @@ class LibraryFilteringTestCase(APITestCase):
     
     def test_sorting_by_title(self):
         url = reverse('books-list') + '?ordering=title'
+        self.client.force_authenticate(self.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['results'][0]['title'], 'Book A')
     
     def test_page_pagination(self):
         url = reverse('books-list') + '?pagination=page&page_size=1&page=1'
+        self.client.force_authenticate(self.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)

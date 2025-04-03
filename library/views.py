@@ -22,15 +22,13 @@ class AuthorViewSet(viewsets.ModelViewSet):
 
 
 class BookViewSet(viewsets.ModelViewSet):
-    queryset = Book.objects.all()
+    queryset = Book.objects.all().select_related('author').prefetch_related('genre')
     serializer_class = BookSerializer
     permission_classes = [MethodBasedPermission]
-    # permission_classes = [IsOwner | (IPBasedPermission & FieldLevelPermission)]
-    # permission_classes = [StaffAndFeatured]
-    # filter_backends = [DjangoFilterBackend, 
-    #                    SearchFilter, OrderingFilter, 
-    #                 #    BookAboveAvgFilterBackend
-    #                    ]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = BookFilter
+    search_fields = ['title', 'author__name']
+    ordering_fields = ['title', 'published_date', 'rating']
     filterset_class = BookFilter
     ordering_fields = ['title']
     def get_pagination_class(self):
