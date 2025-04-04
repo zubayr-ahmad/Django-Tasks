@@ -101,3 +101,10 @@ def create_user_with_role(role='regular', **extras):
     elif role == 'admin':
         return User.objects.create_superuser(username=username, password='testpass')
     return User.objects.create_user(username=username, password='testpass')
+
+def validate_response_data(response, expected_status=status.HTTP_200_OK,  expected_keys=None):
+    assert response.status_code == expected_status
+    if expected_keys:
+        data = response.json()
+        for key in expected_keys:
+            assert key in data

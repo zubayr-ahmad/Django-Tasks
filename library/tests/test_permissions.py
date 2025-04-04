@@ -4,7 +4,7 @@ from django.urls import reverse
 from library.models import Book, Author, Genre
 from accounts.models import User
 from factories import UserFactory, BookFactory, AuthorFactory, GenreFactory
-from utils import AuthAPIRequestFactory, create_user_with_role
+from utils import AuthAPIRequestFactory, create_user_with_role, validate_response_data
 from library.views import BookViewSet
 class LibraryPermissionsTestCase(APITestCase):
     def setUp(self):
@@ -24,7 +24,7 @@ class LibraryPermissionsTestCase(APITestCase):
     def test_unauthenticated_access(self):
         url = reverse('books-list')
         response = self.client.post(url, {'title': 'New Book', 'author': self.author.id}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        validate_response_data(response, status.HTTP_401_UNAUTHORIZED)
     
     def test_get_allowed_for_all_authenticated(self):
         url = reverse('books-list')
