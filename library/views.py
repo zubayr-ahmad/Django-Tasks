@@ -6,23 +6,26 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from datetime import datetime, timedelta
 
-from accounts.permissions import IsOwner, FieldLevelPermission, IPBasedPermission, MethodBasedPermission, StaffAndFeatured, ContentTypePermission
+from accounts.permissions import MethodBasedPermission
 from .models import Book, Author, Genre
-from .serializers import BookSerializer, BookListSerializer, BookAdminSerializer, BookAdaptiveSerializer, AuthorSerializer, GenreSerializer
-from .filters import BookFilter, BookAboveAvgFilterBackend
+from .serializers import BookSerializer, BookSerializerV2, AuthorSerializer, GenreSerializer
+from .filters import BookFilter
+from .utils import SerializerClassMixin
 from .pagination import (CustomLimitOffsetPagination, 
                          CustomPageNumberPagination,
                          TimeBasePagination,
                          MetaDataPagination)
 
-class AuthorViewSet(viewsets.ModelViewSet):
-    queryset = Author.objects.all()
+class AuthorViewSet(SerializerClassMixin, viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
+    serializer_class_mapping = {'v1':AuthorSerializer, 'v2':AuthorSerializer}
+    queryset = Author.objects.all()
     # permission_classes = [ContentTypePermission]
 
 
-class BookViewSet(viewsets.ModelViewSet):
+class BookViewSet(SerializerClassMixin, viewsets.ModelViewSet):
     queryset = Book.objects.all().select_related('author').prefetch_related('genre')
+    serializer_class_mapping = {'v1':BookSerializer, 'v2':BookSerializerV2}
     serializer_class = BookSerializer
     permission_classes = [MethodBasedPermission]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -31,6 +34,7 @@ class BookViewSet(viewsets.ModelViewSet):
     ordering_fields = ['title', 'published_date', 'rating']
     filterset_class = BookFilter
     ordering_fields = ['title']
+            
     def get_pagination_class(self):
         print(f"Request version: {self.request.version}")
         pagination_type = self.request.query_params.get('pagination', 'page')
@@ -88,9 +92,10 @@ class BookViewSet(viewsets.ModelViewSet):
     
     
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(SerializerClassMixin, viewsets.ModelViewSet):
+    serializer_class = GenreSerializer
+    serializer_class_mapping = {'v1':GenreSerializer, 'v2': GenreSerializer}
     filter_backends = [SearchFilter]
     search_fields = ['label']
 
     queryset = Genre.objects.all()
-    serializer_class = GenreSerializer

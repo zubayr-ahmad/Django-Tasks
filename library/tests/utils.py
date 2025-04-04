@@ -42,25 +42,26 @@ class CRUDTestMixin:
     factory_class = None
     list_url_name = None
     detail_url_name = None
+    version = 'v1'
 
     def create_instance(self, **kwargs):
         return self.factory_class(**kwargs)
 
     def test_create(self):
-        url = reverse(self.list_url_name)
+        url = reverse(self.list_url_name, kwargs={'version': self.version})
         data = self.get_create_data()
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(self.model.objects.count(), self.initial_count + 1)
 
     def test_retrieve_list(self):
-        url = reverse(self.list_url_name)
+        url = reverse(self.list_url_name, kwargs={'version': self.version})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
     def test_retrieve_detail(self):
         instance = self.create_instance()
-        url = reverse(self.detail_url_name, kwargs={'pk': instance.id})
+        url = reverse(self.detail_url_name, kwargs={'pk': instance.id, 'version':self.version})
         response = self.client.get(url)
         results = response.data.get('results', response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -68,7 +69,7 @@ class CRUDTestMixin:
         
     def test_update(self):
         instance = self.create_instance()
-        url = reverse(self.detail_url_name, kwargs={'pk': instance.id})
+        url = reverse(self.detail_url_name, kwargs={'pk': instance.id, 'version':self.version})
         data = self.get_update_data(instance)
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -76,7 +77,7 @@ class CRUDTestMixin:
     def test_delete(self):
         count_before = self.model.objects.count()
         instance = self.create_instance()
-        url = reverse(self.detail_url_name, kwargs={'pk': instance.id})
+        url = reverse(self.detail_url_name, kwargs={'pk': instance.id, 'version':self.version})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(self.model.objects.count(), count_before)

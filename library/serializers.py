@@ -51,6 +51,38 @@ class BookSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Author and title cannot be None")
         return obj
 
+class BookSerializerV2(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    author = serializers.PrimaryKeyRelatedField(
+        queryset=Author.objects.all()
+    )
+    days_ago = serializers.SerializerMethodField(
+        method_name='get_days_ago', read_only=True
+    )   
+    is_new = serializers.SerializerMethodField() 
+    def get_days_ago(self, obj):
+        # self serializer, obj = Book instance
+        if obj.published_date:
+            days_ago = (datetime.now().date() - obj.published_date).days
+            return days_ago
+        return None
+    
+    def get_is_new(self, obj):
+        if obj.published_date:
+            is_new = (datetime.now().date() - obj.published_date).days <= 30
+            return is_new
+        return None
+
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'author', 'published_date', 'days_ago', 'rating', 'is_featured', 'genre', 'is_new']
+    
+    def validate(self, obj):
+        print(obj)
+        if obj['author'] is None or obj['title'] is None:
+            raise serializers.ValidationError("Author and title cannot be None")
+        return obj
+
 
 class BookListSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.name', read_only = True)

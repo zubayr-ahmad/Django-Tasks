@@ -15,7 +15,7 @@ class LibraryPermissionsTestCase(APITestCase):
         self.author = Author.objects.create(name='testuser', bio='Bio', date_of_birth='2000-01-01')
         self.book = BookFactory(author=self.author)
         self.factory = AuthAPIRequestFactory
-
+        self.version = 'v1'
     def authenticate(self, user):
         self.client.force_authenticate(user=user)
 
@@ -23,25 +23,25 @@ class LibraryPermissionsTestCase(APITestCase):
         return True
     
     def test_unauthenticated_access(self):
-        url = reverse('books-list')
+        url = reverse('books-list', kwargs={'version': self.version})
         response = self.client.post(url, {'title': 'New Book', 'author': self.author.id}, format='json')
         validate_response_data(response, status.HTTP_401_UNAUTHORIZED)
     
     def test_get_allowed_for_all_authenticated(self):
-        url = reverse('books-list')
+        url = reverse('books-list', kwargs={'version': self.version})
         self.authenticate(self.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
     def test_post_not_allowed_for_regular(self):
-        url = reverse('books-list')
+        url = reverse('books-list', kwargs={'version': self.version})
         data = {'title': 'Staff Book', 'author': self.author.id}
         self.authenticate(self.user)
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_post_allowed_for_regular(self):
-        url = reverse('books-list')
+        url = reverse('books-list', kwargs={'version': self.version})
         data = {'title': 'Updated Book', 'author': self.author.id, 'genre': 1}
         self.authenticate(self.staff_user)
         response = self.client.post(url, data)
@@ -49,7 +49,7 @@ class LibraryPermissionsTestCase(APITestCase):
     
     def test_update_for_owner(self):
         """Owner is someone having same username and authorname"""
-        url = reverse('books-detail', kwargs={'pk': self.book.id})
+        url = reverse('books-detail', kwargs={'pk': self.book.id, 'version': self.version})
         data = {'title': 'Updated Book', 'author': self.author.id, 'genre': 1}
         factory = self.factory(self.user)
         request = factory.put(url, data=data)
