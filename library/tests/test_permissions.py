@@ -4,7 +4,8 @@ from django.urls import reverse
 from library.models import Book, Author, Genre
 from accounts.models import User
 from factories import UserFactory, BookFactory, AuthorFactory, GenreFactory
-
+from utils import AuthAPIRequestFactory
+from library.views import BookViewSet
 class LibraryPermissionsTestCase(APITestCase):
     def setUp(self):
         self.user = UserFactory(username="testuser")
@@ -12,7 +13,8 @@ class LibraryPermissionsTestCase(APITestCase):
         self.admin_user = UserFactory(username='adminuser', is_staff=True, is_superuser=True)
         self.author = Author.objects.create(name='testuser', bio='Bio', date_of_birth='2000-01-01')
         self.book = BookFactory(author=self.author)
-    
+        self.factory = AuthAPIRequestFactory
+
     def authenticate(self, user):
         self.client.force_authenticate(user=user)
 
@@ -39,7 +41,7 @@ class LibraryPermissionsTestCase(APITestCase):
     
     def test_post_allowed_for_regular(self):
         url = reverse('books-list')
-        data = {'title': 'Staff Book', 'author': self.author.id}
+        data = {'title': 'Updated Book', 'author': self.author.id, 'genre': 1}
         self.authenticate(self.staff_user)
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -47,7 +49,9 @@ class LibraryPermissionsTestCase(APITestCase):
     def test_update_for_owner(self):
         """Owner is someone having same username and authorname"""
         url = reverse('books-detail', kwargs={'pk': self.book.id})
-        self.authenticate(self.user)
-        response = self.client.put(url, {'title': 'Updated Book', 'author': self.author.id})
+        data = {'title': 'Updated Book', 'author': self.author.id, 'genre': 1}
+        factory = self.factory(self.user)
+        request = factory.put(url, data=data)
+        view = BookViewSet.as_view({'put':'update'})
+        response = view(request, pk=self.book.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-    

@@ -29,7 +29,7 @@ class LibraryAPITestCase(APITestCase):
     
     def test_create_book(self):
         url = reverse('books-list')
-        data = {'title':'Test01', 'author':self.author.id, 'rating':4.0}
+        data = {'title':'Test01', 'author':self.author.id, 'rating':4.0, 'genre':1}
         self.client.force_authenticate(self.user)
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
