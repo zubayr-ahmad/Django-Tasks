@@ -32,6 +32,7 @@ class BookViewSet(viewsets.ModelViewSet):
     filterset_class = BookFilter
     ordering_fields = ['title']
     def get_pagination_class(self):
+        print(f"Request version: {self.request.version}")
         pagination_type = self.request.query_params.get('pagination', 'page')
         pagination_class = {
             'page': CustomPageNumberPagination,
