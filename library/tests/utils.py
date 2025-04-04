@@ -11,7 +11,7 @@ class AuthAPIRequestFactory(APIRequestFactory):
         if token:
             self.token = token
         elif user:
-            self.token = RefreshToken.for_user(user).access_token
+            self.token = get_jwt_token(user)
         else:
             self.token = None
     
@@ -89,3 +89,15 @@ class AuthMixin:
     def tearDown(self):
         self.client.force_authenticate(None)
         super().tearDown()
+
+def get_jwt_token(user):
+    refresh = RefreshToken.for_user(user)
+    return refresh.access_token
+
+def create_user_with_role(role='regular', **extras):
+    username = extras.get('username', f'{role}')
+    if role == 'staff':
+        return User.objects.create_user(username=username, password='testpass', is_staff=True)
+    elif role == 'admin':
+        return User.objects.create_superuser(username=username, password='testpass')
+    return User.objects.create_user(username=username, password='testpass')

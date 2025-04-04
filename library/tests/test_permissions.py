@@ -4,13 +4,13 @@ from django.urls import reverse
 from library.models import Book, Author, Genre
 from accounts.models import User
 from factories import UserFactory, BookFactory, AuthorFactory, GenreFactory
-from utils import AuthAPIRequestFactory
+from utils import AuthAPIRequestFactory, create_user_with_role
 from library.views import BookViewSet
 class LibraryPermissionsTestCase(APITestCase):
     def setUp(self):
-        self.user = UserFactory(username="testuser")
-        self.staff_user = UserFactory(username="staffuser", is_staff=True)
-        self.admin_user = UserFactory(username='adminuser', is_staff=True, is_superuser=True)
+        self.user = create_user_with_role(username='testuser')
+        self.staff_user = create_user_with_role(username="staffuser", role='staff')
+        self.admin_user = create_user_with_role(username='adminuser', role='admin')
         self.author = Author.objects.create(name='testuser', bio='Bio', date_of_birth='2000-01-01')
         self.book = BookFactory(author=self.author)
         self.factory = AuthAPIRequestFactory
