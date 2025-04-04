@@ -4,6 +4,7 @@ from django.urls import reverse
 from library.models import Book, Author, Genre
 from accounts.models import User
 from factories import UserFactory, BookFactory, AuthorFactory, GenreFactory
+from utils import CRUDTestMixin, AuthMixin
 class LibraryAPITestCase(APITestCase):
     def setUp(self):
         self.user = UserFactory(is_staff=True)
@@ -90,3 +91,26 @@ class LibraryFilteringTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
+
+class BookAPITestCase(AuthMixin, CRUDTestMixin, APITestCase):
+    model = Book
+    factory_class = BookFactory
+    list_url_name = 'books-list'
+    detail_url_name = 'books-detail'
+    initial_count = 0
+
+    def setUp(self):
+        super().setUp()
+        self.user.is_staff = True
+        self.user.is_superuser = True
+        self.user.save()
+        self.client.force_authenticate(self.user)
+        self.author = AuthorFactory(name=self.user.username)
+        self.genre = GenreFactory()
+        self.initial_count = 0
+
+    def get_create_data(self):
+        return {'title': 'New Book', 'author': self.author.id, 'genre': [self.genre.id]}
+
+    def get_update_data(self, instance):
+        return {'title': 'Updated Book', 'author': instance.author.id, 'genre': [self.genre.id]}
