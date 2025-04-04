@@ -2,9 +2,9 @@
 from django.test import TestCase
 from django.urls import reverse, resolve
 from library.views import BookViewSet, AuthorViewSet, GenreViewSet
-
+from django.conf import settings
 class URLPatternsTestCase(TestCase):
-    version = 'v1'
+    version = settings.CURRENT_API_VERSION
     def test_books_list_url(self):
         url = reverse('books-list', kwargs={'version': self.version})
         resolver = resolve(url)

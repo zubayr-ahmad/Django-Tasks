@@ -7,6 +7,7 @@ from accounts.models import User
 from factories import UserFactory, BookFactory, AuthorFactory, GenreFactory
 from utils import AuthAPIRequestFactory, create_user_with_role, validate_response_data
 from library.views import BookViewSet
+from django.conf import settings
 class LibraryPermissionsTestCase(APITestCase):
     def setUp(self):
         self.user = create_user_with_role(username='testuser')
@@ -15,7 +16,7 @@ class LibraryPermissionsTestCase(APITestCase):
         self.author = Author.objects.create(name='testuser', bio='Bio', date_of_birth='2000-01-01')
         self.book = BookFactory(author=self.author)
         self.factory = AuthAPIRequestFactory
-        self.version = 'v1'
+        self.version = settings.CURRENT_API_VERSION
     def authenticate(self, user):
         self.client.force_authenticate(user=user)
 

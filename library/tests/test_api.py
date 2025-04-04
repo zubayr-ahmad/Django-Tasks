@@ -6,13 +6,14 @@ from library.models import Book, Author, Genre
 from accounts.models import User
 from factories import UserFactory, BookFactory, AuthorFactory, GenreFactory
 from utils import CRUDTestMixin, AuthMixin
+from django.conf import settings
 class LibraryAPITestCase(APITestCase):
     def setUp(self):
         self.user = UserFactory(is_staff=True)
         self.book = BookFactory()
         self.author = self.book.author
         self.genre = self.book.genre.first()
-        self.version = 'v1'
+        self.version = settings.CURRENT_API_VERSION
     
     def test_get_books_v1(self):
         url = reverse('books-list', kwargs={'version': self.version})
@@ -80,7 +81,7 @@ class LibraryFilteringTestCase(APITestCase):
         self.genre = GenreFactory()
         self.book1 = BookFactory(title="Book A", author=self.author, genre=[self.genre], is_featured=True)
         self.book2 = BookFactory(title="Book B", author=self.author, genre=[self.genre], is_featured=False)
-        self.version = 'v1'
+        self.version = settings.CURRENT_API_VERSION
         
     def test_filter_by_title(self):
         url = reverse('books-list', kwargs={'version': self.version}) + '?title__contains=A'

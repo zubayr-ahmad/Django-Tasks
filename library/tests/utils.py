@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APIRequestFactory
 from rest_framework_simplejwt.tokens import RefreshToken
 from accounts.models import User
-
+from django.conf import settings
 class AuthAPIRequestFactory(APIRequestFactory):
     def __init__(self, user=None, token=None, **defaults):
         super().__init__(**defaults)
@@ -42,7 +42,7 @@ class CRUDTestMixin:
     factory_class = None
     list_url_name = None
     detail_url_name = None
-    version = 'v1'
+    version = settings.CURRENT_API_VERSION
 
     def create_instance(self, **kwargs):
         return self.factory_class(**kwargs)
