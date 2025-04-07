@@ -27,7 +27,6 @@ class AuthorViewSet(SerializerClassMixin, viewsets.ModelViewSet):
 class BookViewSet(SerializerClassMixin, viewsets.ModelViewSet):
     queryset = Book.objects.all().select_related('author').prefetch_related('genre')
     serializer_class_mapping = {'v1':BookSerializer, 'v2':BookSerializerV2}
-    serializer_class = BookSerializer
     permission_classes = [MethodBasedPermission]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = BookFilter
