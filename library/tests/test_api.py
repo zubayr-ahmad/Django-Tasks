@@ -74,8 +74,20 @@ class LibraryAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Genre.objects.count(), 2)
     
-    # def test_review_v1_not_available(self):
-    #     url = reverse('books-list/revi', kwargs={'pk': self.book.id, 'version':'v1'})
+    def test_deprecation_warning_v1(self):
+        url = reverse('books-list', kwargs={'version': 'v1'})
+        self.client.force_authenticate(self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('X-API-Deprecation-Warning', response.headers)
+        self.assertIn('deprecated', response.headers['X-API-Deprecation-Warning'])
+
+    def test_no_deprecation_warning_v2(self):
+        url = reverse('books-list', kwargs={'version': 'v2'})
+        self.client.force_authenticate(self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn('X-API-Deprecation-Warning', response.headers)
 
 class LibraryFilteringTestCase(APITestCase):
     def setUp(self):

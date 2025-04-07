@@ -1,5 +1,7 @@
 from rest_framework_simplejwt.exceptions import InvalidToken, AuthenticationFailed
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.utils.deprecation import MiddlewareMixin
+import re
 
 class JWTAuthenticationMiddleware:
     def __init__(self, get_response):
@@ -16,3 +18,16 @@ class JWTAuthenticationMiddleware:
             pass
 
         return self.get_response(request)
+
+
+
+class DeprecationMiddleware(MiddlewareMixin):
+    def process_response(self, request, response):
+        version_match = re.search(r'/(v\d)/', request.path)
+        version = version_match.group(1) if version_match else None
+        
+        print(f"URL: {request.path}, Direct version: {version}, DRF version: {getattr(request, 'version', 'NOT SET')}")
+        
+        if version == 'v1':
+            response['X-API-Deprecation-Warning'] = 'API v1 is deprecated and will be removed in future releases. Please upgrade to v2.'
+        return response
