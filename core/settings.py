@@ -76,7 +76,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
-CURRENT_API_VERSION = 'v1'
+CURRENT_API_VERSION = 'v2'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

@@ -60,6 +60,7 @@ class BookSerializerV2(serializers.ModelSerializer):
         method_name='get_days_ago', read_only=True
     )   
     is_new = serializers.SerializerMethodField() 
+    summary = serializers.CharField(allow_blank=True, required=False)
     def get_days_ago(self, obj):
         # self serializer, obj = Book instance
         if obj.published_date:
@@ -75,7 +76,7 @@ class BookSerializerV2(serializers.ModelSerializer):
 
     class Meta:
         model = Book
-        fields = ['id', 'title', 'author', 'published_date', 'days_ago', 'rating', 'is_featured', 'genre', 'is_new']
+        fields = ['id', 'title', 'author', 'published_date', 'days_ago', 'rating', 'is_featured', 'genre', 'is_new', 'summary']
     
     def validate(self, obj):
         print(obj)

@@ -73,6 +73,9 @@ class LibraryAPITestCase(APITestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Genre.objects.count(), 2)
+    
+    # def test_review_v1_not_available(self):
+    #     url = reverse('books-list/revi', kwargs={'pk': self.book.id, 'version':'v1'})
 
 class LibraryFilteringTestCase(APITestCase):
     def setUp(self):
@@ -126,3 +129,5 @@ class BookAPITestCase(AuthMixin, CRUDTestMixin, APITestCase):
 
     def get_update_data(self, instance):
         return {'title': 'Updated Book', 'author': instance.author.id, 'genre': [self.genre.id]}
+
+    

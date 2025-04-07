@@ -24,6 +24,7 @@ class Book(models.Model):
     genre = models.ManyToManyField(Genre, related_name='books')
     rating = models.DecimalField(max_digits=2, decimal_places=1, null=True, blank=True)
     is_featured = models.BooleanField(default=False)
-
+    summary = models.TextField(null=True, blank=True)
+    
     def __str__(self):
         return f"{self.title} : {self.author.name}"

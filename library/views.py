@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
 from datetime import datetime, timedelta
 
@@ -48,10 +49,10 @@ class BookViewSet(SerializerClassMixin, viewsets.ModelViewSet):
     pagination_class = property(get_pagination_class)
     
     @action(detail=False,methods=['GET'])
-    def recent(self, request):
+    def recent(self, request, version=None):
         days = datetime.now().date() - timedelta(days=30)
         recent_books = Book.objects.filter(published_date__gt=days)
-        serializer = BookSerializer(recent_books, many=True)
+        serializer = self.get_serializer(recent_books, many=True)
         return Response(serializer.data)
 
     @action(detail=True, methods=['GET'])
@@ -63,11 +64,19 @@ class BookViewSet(SerializerClassMixin, viewsets.ModelViewSet):
         })
 
     @action(detail=False, methods=['GET'])
-    def featured(self, request):
+    def featured(self, request, version=None):
         books = self.get_queryset().filter(is_featured=True)
         serialzer = self.get_serializer(books, many=True)
         return Response(serialzer.data)
-
+    
+    @action(detail=True, methods=['GET'], )
+    def reviews(self, request, pk=None, version=None):
+        if self.request.version != 'v2':
+            return Response({"detail": "Reviews are only available in v2"}, status=status.HTTP_404_NOT_FOUND)
+        book = self.get_object()
+        # Mock reviews data for demonstration
+        reviews = [{"id": 1, "content": f"Review of {book.title}", "rating": book.rating or 4.0}]
+        return Response(reviews)
     # filterset_fields = ['title', 'is_featured']
     # filterset_class = BookFilter
     # search_fields = ['title', 'author__name']
